@@ -1,0 +1,107 @@
+<div class="welcome-message">
+  <h2>Welcome, {{ this.email }}</h2>
+</div>
+
+<!-- Sorting and search for visits -->
+
+
+<div class="visit-windows">
+  <!-- Past Visits -->
+  <div class="visit-container past-visits">
+    <h3>Past Visits</h3>
+    <ul class="visit-list">
+      <input type="text" placeholder="Search..." [(ngModel)]="searchTermPast" (input)="filterVisitsPast()" />
+
+      <li *ngFor="let visit of pastVisits" class="visit-item">
+        <div class="visit-details">
+          <span class="badge">{{ visit.id }}</span>
+          <span class="patient-name">{{ visit.user.username }}</span>
+          <span class="email">{{ visit.user.email }}</span>
+          <span class="date">{{ visit.date }}, {{ visit.hour }}</span>
+          <span class="note">{{ visit.note }}</span>
+        </div>
+        <div *ngFor="let prescription of prescriptionList">
+          <div *ngIf="prescription.visit.user.email === visit.user.email && prescription.visit.date === visit.date">
+            <h4>Prescription Details:</h4>
+            <span class="prescription-telephone">Contact number: {{ prescription.telephone }}</span><br>
+            <span class="prescription-note">Prescription: {{ prescription.note }}</span><br>
+          </div>
+        </div>
+      </li>
+    </ul>
+  </div>
+
+  <!-- Upcoming Visits -->
+  <div class="visit-container upcoming-visits">
+    <h3>Upcoming Visits</h3>
+    <ul class="visit-list">
+      <input type="text" placeholder="Search..." [(ngModel)]="searchTerm" (input)="filterVisitsUpcoming()" />
+
+      <li *ngFor="let visit of upcomingVisits" class="visit-item">
+        <div class="visit-details">
+          <span class="badge">{{ visit.id }}</span>
+          <span class="patient-name">{{ visit.user.username }}</span>
+          <span class="email">{{ visit.user.email }}</span>
+          <span class="date">{{ visit.date }}, {{ visit.hour }}</span>
+          <span class="note">{{ visit.note }}</span>
+        </div>
+        <div *ngFor="let prescription of prescriptionList">
+          <div *ngIf="prescription.visit.user.email === visit.user.email && prescription.visit.date === visit.date">
+            <h4>Prescription Details:</h4>
+            <span class="prescription-telephone">Contact number: {{ prescription.telephone }}</span><br>
+            <span class="prescription-note">Prescription: {{ prescription.note }}</span><br>
+          </div>
+        </div>
+      </li>
+    </ul>
+  </div>
+</div>
+
+<!-- Sorting and search for prescriptions -->
+<div class="sort-search-container">
+  <h3 id="prescription-list" class="YourVisits">Your Prescriptions:</h3>
+  <div class="sort-buttons">
+    <button type="button" class="sort-button" [class.active]="prescriptionSortBy === 'surname'" (click)="toggleprescriptionSort('surname')">
+      Sort by Surname
+      <span [innerHTML]="getSortIcon('surname', prescriptionSortDirection['surname'])"></span>
+    </button>
+    <button type="button" class="sort-button" [class.active]="prescriptionSortBy === 'telephone'" (click)="toggleprescriptionSort('telephone')">
+      Sort by Date
+      <span [innerHTML]="getSortIcon('telephone', prescriptionSortDirection['telephone'])"></span>
+    </button>
+  </div>
+  <input type="text" placeholder="Search Prescriptions..." [(ngModel)]="prescriptionSearchTerm" (input)="filterprescriptions()" />
+</div>
+
+<!-- prescription List -->
+<div class="prescription-container">
+  <h3>Prescription List</h3>
+  <table class="prescription-table">
+    <thead>
+    <tr>
+      <th>ID</th>
+      <th>Username</th>
+      <th>Email</th>
+      <th>Date of Prescription</th>
+      <th>Prescription</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr *ngFor="let prescription of filteredprescriptions">
+      <td>{{ prescription.id }}</td>
+      <td>{{ prescription.visit.user.username }}</td>
+      <td>{{ prescription.visit.user.email }}</td>
+      <td>{{ prescription.visit.date }}</td>
+      <td>{{ prescription.note }}</td>
+    </tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="hidden">
+  <input #prescriptionFirstName />
+  <input #prescriptionLastName />
+  <input #prescriptionEmail />
+  <input #prescriptionTelephone />
+  <input #prescriptionNote />
+</div>

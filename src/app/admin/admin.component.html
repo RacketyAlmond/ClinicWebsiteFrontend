@@ -1,0 +1,226 @@
+
+
+<app-spinner *ngIf="isLoading"></app-spinner>
+
+<div class="admin-container">
+  <div class="sort-search-container">
+    <h2>Users</h2>
+    <table>
+      <thead>
+      <input type="text" [(ngModel)]="searchTerm" (input)="filterUsers()" placeholder="Search...">
+
+      <tr>
+
+        <th (click)="toggleUserSort('username')" class="UsernameInUser">Username</th>
+        <th (click)="toggleUserSort('email')" class="MailInUser">Email</th>
+        <th>Actions</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr *ngFor="let user of filteredUsers">
+        <td>{{ user.username }}</td>
+        <td>{{ user.email }}</td>
+        <td>
+          <button (click)="openVisitForm(user.id)">Add Visit</button>
+        </td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+  <div *ngIf="selectedUserId">
+    <h3>Create Visit</h3>
+    <form (ngSubmit)="submitVisit()">
+      <label for="date">Date:</label>
+      <input type="date" id="date" required [(ngModel)]="newVisit.date" name="date"><br>
+      <label for="hour">Hour:</label>
+      <input type="text" id="hour" required [(ngModel)]="newVisit.hour" name="date"><br>
+
+      <label for="note">Note:</label><br>
+      <textarea type="text" id="note" required [(ngModel)]="newVisit.note" name="note" style="height: 150px;"></textarea><br>
+      <button type="submit">Submit</button>
+    </form>
+  </div>
+
+  <div class="visits-wrapper">
+    <!-- Past Visits Section -->
+    <div class="visit-container past-visits">
+      <h3>Past Visits</h3>
+      <input type="text" placeholder="Search..." [(ngModel)]="searchTermPast" (input)="filterVisitsPast()" />
+
+
+      <div class="sort-container">
+
+        <div class="sort-buttons">
+          <button type="button" class="sort-button" [class.active]="pastVisitSortBy === 'date'" (click)="togglePastVisitSort('date')">
+            Date
+            <span [innerHTML]="getSortIcon('date', pastVisitSortDirection[pastVisitSortBy])"></span>
+          </button>
+          <button type="button" class="sort-button" [class.active]="pastVisitSortBy === 'username'" (click)="togglePastVisitSort('username')">
+            Username
+            <span [innerHTML]="getSortIcon('username', pastVisitSortDirection[pastVisitSortBy])"></span>
+          </button>
+          <button type="button" class="sort-button" [class.active]="pastVisitSortBy === 'note'" (click)="togglePastVisitSort('note')">
+            Note
+            <span [innerHTML]="getSortIcon('note', pastVisitSortDirection[pastVisitSortBy])"></span>
+          </button>
+
+        </div>
+
+      </div>
+      <ul class="visit-list">
+        <li *ngFor="let visit of pastVisits" class="visit-item">
+          <div class="visit-details">
+            <span class="badge">{{ visit.id }}</span>
+            <span class="patient-name">{{ visit.user.username }}</span>
+            <span class="email">{{ visit.user.email }}</span>
+            <span class="date">{{ visit.date }}, {{ visit.hour }}</span>
+            <span class="note">{{ visit.note }}</span>
+            <div *ngFor="let prescription of prescriptionList">
+              <div *ngIf="prescription.visit.user.email === visit.user.email && prescription.visit.date === visit.date">
+                <h4>Prescription Details:</h4>
+                <span class="prescription-telephone">Contact number: {{ prescription.telephone }}</span><br>
+                <span class="prescription-note">Prescription: {{ prescription.note }}</span><br>
+              </div>
+            </div>
+          </div>
+          <button (click)="deleteVisit(visit)">Delete</button>
+          <button (click)="updateVisitAndUpdateScroll(visit)">Update</button>
+          <button (click)="openprescriptionForm(visit.id)">Add Prescription</button>
+
+        </li>
+      </ul>
+    </div>
+
+    <div class="visit-container upcoming-visits">
+      <h3>Upcoming Visits</h3>
+      <input type="text" placeholder="Search..." [(ngModel)]="searchTerm" (input)="filterVisitsUpcoming()" />
+
+      <div class="sort-container">
+        <div class="sort-buttons">
+          <button type="button" class="sort-button" [class.active]="upcomingVisitSortBy === 'date'" (click)="toggleUpcomingVisitSort('date')">
+            Date
+            <span [innerHTML]="getSortIcon('date', upcomingVisitSortDirection[upcomingVisitSortBy])"></span>
+          </button>
+          <button type="button" class="sort-button" [class.active]="upcomingVisitSortBy === 'username'" (click)="toggleUpcomingVisitSort('username')">
+            Username
+            <span [innerHTML]="getSortIcon('username', upcomingVisitSortDirection[upcomingVisitSortBy])"></span>
+          </button>
+          <button type="button" class="sort-button" [class.active]="upcomingVisitSortBy === 'note'" (click)="toggleUpcomingVisitSort('note')">
+            Note
+            <span [innerHTML]="getSortIcon('note', upcomingVisitSortDirection[upcomingVisitSortBy])"></span>
+          </button>
+        </div>
+      </div>
+      <ul class="visit-list">
+        <li *ngFor="let visit of upcomingVisits" class="visit-item">
+          <div class="visit-details">
+            <span class="badge">{{ visit.id }}</span>
+            <span class="patient-name">{{ visit.user.username }}</span>
+            <span class="email">{{ visit.user.email }}</span>
+            <span class="date">{{ visit.date }}, {{ visit.hour }}</span>
+            <span class="note">{{ visit.note }}</span>
+            <div *ngFor="let prescription of prescriptionList">
+              <div *ngIf="prescription.visit.user.email === visit.user.email && prescription.visit.date === visit.date">
+                <h4>Prescription Details:</h4>
+                <span class="prescription-telephone">Contact number: {{ prescription.telephone }}</span><br>
+                <span class="prescription-note">Prescription: {{ prescription.note }}</span><br>
+              </div>
+            </div>
+          </div>
+          <button (click)="deleteVisit(visit)">Delete</button>
+          <button (click)="updateVisitAndUpdateScroll(visit)">Update</button>
+          <button (click)="openprescriptionForm(visit.id)">Add Prescription</button>
+
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <div *ngIf="selectedVisitId">
+    <h3>Create Prescription</h3>
+    <form (ngSubmit)="submitprescription()">
+      <label for="telephone">Telephone:</label>
+      <input type="text" id="telephone" required [(ngModel)]="newprescription.telephone" name="telephone"><br>
+      <label for="notePrescription">Note:</label><br>
+      <textarea type="text" id="notePrescription" required [(ngModel)]="newprescription.note" name="note" style="height: 150px;"></textarea><br>
+      <button type="submit">Submit</button>
+    </form>
+  </div>
+  <div id="update-list"></div>
+  <div *ngIf="visitToUpdate" class="Updater">
+    <h3>Update Visit</h3>
+    <form (ngSubmit)="updateVisit()">
+      <label for="updatePatientName">Patient Name:</label><br>
+      <input type="text" id="updatePatientName" [(ngModel)]="visitToUpdate.user.username" name="updatePatientName"><br>
+      <label for="updateEmail">Patient Email:</label><br>
+      <input type="email" id="updateEmail" [(ngModel)]="visitToUpdate.user.email" name="updateEmail"><br>
+      <label for="updateDate">Date:</label><br>
+      <input type="date" id="updateDate" [(ngModel)]="visitToUpdate.date" name="updateDate"><br>
+      <label for="updateHour">Hour:</label><br>
+      <input type="hour" id="updateHour" [(ngModel)]="visitToUpdate.hour" name="updateDate"><br>
+
+      <label for="updateNote">Prescription:</label><br>
+      <input type="text" id="updateNote" [(ngModel)]="visitToUpdate.note" name="updateNote"><br>
+      <button type="submit">Update Visit</button>
+    </form>
+  </div>
+  <div class="sort-search-container">
+    <h2 id="prescription-list">Sort and Search Prescriptions:</h2>
+    <button (click)="toggleprescriptionSort('username')">Sort by Name</button>
+    <button (click)="toggleprescriptionSort('email')">Sort by Email</button>
+    <button (click)="toggleprescriptionSort('id')">ID</button>
+    <button (click)="toggleprescriptionSort('telephone')">Telephone</button>
+    <input type="text" placeholder="Search prescriptions..." [(ngModel)]="prescriptionSearchTerm" (input)="filterprescriptions()" />
+  </div>
+  <div class="prescription-container">
+    <h3>prescriptions List</h3>
+    <table class="prescription-table">
+      <thead>
+      <tr>
+        <th>ID</th>
+        <th>Name</th>
+        <th>Email</th>
+        <th>Telephone</th>
+        <th>Note</th>
+        <th>Actions</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr *ngFor="let prescription of filteredprescriptions">
+        <td>{{prescription.id}}</td>
+        <td>{{prescription.visit.user.username}}</td>
+        <td>{{prescription.visit.user.email}}</td>
+        <td>{{prescription.telephone}}</td>
+        <td>{{prescription.note}}</td>
+        <td>
+          <button title="delete" (click)="deleteprescription(prescription)">Delete</button>
+        </td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+  <div>
+    <h2>Users</h2>
+    <div class="visit-container">
+      <ul class="visit-list">
+        <input [(ngModel)]="searchTerm" (input)="filterUsers()" placeholder="Search users">
+        <table>
+          <thead>
+          <tr>
+            <th (click)="toggleUserSort('firstName')">First Name</th>
+            <th (click)="toggleUserSort('lastName')">Last Name</th>
+            <th (click)="toggleUserSort('email')">Email</th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr *ngFor="let user of filteredUsers">
+            <td>{{ user.id }}</td>
+            <td>{{ user.username }}</td>
+            <td>{{ user.email }}</td>
+          </tr>
+          </tbody>
+        </table>
+      </ul>
+    </div>
+  </div>
+</div>
